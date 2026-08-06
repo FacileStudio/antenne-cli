@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -46,7 +47,10 @@ line, which is what a consumer piping into jq wants.`,
 		}
 
 		for {
-			err := api.Stream(ctx, printStreamed)
+			err := api.Stream(ctx, func(event client.Event) {
+				warnedUnavailable = false
+				onStreamed(event)
+			})
 
 			// A cancelled context is the user pressing ctrl-c, not a failure —
 			// but it still exits 130 rather than 0, so a shell can tell a tail
@@ -59,7 +63,19 @@ line, which is what a consumer piping into jq wants.`,
 				if errors.As(err, &apiErr) && apiErr.Unauthenticated() {
 					return err
 				}
-				ui.Warn("stream interrupted, reconnecting — %s", err)
+				// While the instance restarts — every deploy — the edge answers
+				// with whatever it does for a missing backend, commonly a 404.
+				// Reporting that verbatim reads like the route is gone, so say
+				// what it means instead and stay quiet until it drags on.
+				if unavailable(err) {
+					if !warnedUnavailable {
+						ui.Warn("instance is not answering, retrying until it is")
+						warnedUnavailable = true
+					}
+				} else {
+					ui.Warn("stream interrupted, reconnecting — %s", err)
+					warnedUnavailable = false
+				}
 			}
 
 			// The stream also ends cleanly when the instance restarts, which a
@@ -74,7 +90,28 @@ line, which is what a consumer piping into jq wants.`,
 	},
 }
 
-func printStreamed(event client.Event) {
+// warnedUnavailable keeps a restart from printing one warning every two
+// seconds. It resets as soon as the stream comes back or fails differently.
+var warnedUnavailable bool
+
+// unavailable reports whether an error means "not there right now" rather than
+// "wrong". Those are the ones worth retrying quietly.
+func unavailable(err error) bool {
+	var apiErr *client.Error
+	if errors.As(err, &apiErr) {
+		switch apiErr.Status {
+		case http.StatusNotFound, http.StatusBadGateway,
+			http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+			return true
+		}
+		return false
+	}
+	// A transport error — connection refused, TLS reset, an HTTP/2 stream torn
+	// down mid-response — is the same situation seen one layer lower.
+	return true
+}
+
+func onStreamed(event client.Event) {
 	if flagTailSource != "" && event.Source != flagTailSource {
 		return
 	}
