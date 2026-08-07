@@ -62,7 +62,7 @@ redaction marker — which has happened once, from a script, and cost eleven of 
   and HTML. The client reads bodies as text and reports that as a wrong URL rather than
   letting a JSON syntax error hide it.
 - **The API authenticates by cookie only.** No bearer header, no key. `login` reads
-  `Set-Cookie` and every later call sends `Cookie: nook_session=…`.
+  `Set-Cookie` and every later call sends `Cookie: antenne_session=…`.
 - **An instance with no `ANTENNE_ADMIN_PASSWORD` serves everyone as the admin** and sets no
   cookie. That is a success with an empty token, not a failure.
 - **The stream client has no timeout**, unlike every other call. A tail is supposed to stay
