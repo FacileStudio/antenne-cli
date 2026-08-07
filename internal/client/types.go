@@ -1,6 +1,6 @@
 package client
 
-// The shapes below mirror what the Nook API returns. They are deliberately
+// The shapes below mirror what the Antenne API returns. They are deliberately
 // partial: the CLI decodes the fields it displays and ignores the rest, so a
 // new field on the server is not a breaking change here.
 
@@ -42,7 +42,7 @@ type Target struct {
 	ProviderTags []string `json:"providerTags"`
 }
 
-// Silent reports whether the routing rules can ever select this target. Nook's
+// Silent reports whether the routing rules can ever select this target. Antenne's
 // routing is opt-in with no fallthrough, so a target naming no provider and no
 // tag receives nothing — the most common reason one looks broken.
 func (t Target) Silent() bool {
@@ -131,14 +131,14 @@ type EventPage struct {
 	Stats  Stats   `json:"stats"`
 }
 
-// PoolApp is one app connected to the Nook Pool.
+// PoolApp is one app connected to the the Antenne bus.
 type PoolApp struct {
 	AppID    string   `json:"app_id"`
 	App      string   `json:"app"`
 	Channels []string `json:"channels"`
 }
 
-// PoolStats is the live state of the pool.
+// PoolStats is the live state of the bus.
 type PoolStats struct {
 	Epoch       string    `json:"epoch"`
 	Connections int       `json:"connections"`

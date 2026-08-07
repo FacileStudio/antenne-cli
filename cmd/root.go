@@ -1,4 +1,4 @@
-// Package cmd implements the nook command tree.
+// Package cmd implements the antenne command tree.
 package cmd
 
 import (
@@ -10,9 +10,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/FacileStudio/nook-cli/internal/client"
-	"github.com/FacileStudio/nook-cli/internal/config"
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/client"
+	"github.com/FacileStudio/antenne-cli/internal/config"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var version = "dev"
@@ -24,10 +24,10 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "nook",
-	Short: "Terminal client for a Nook instance",
-	Long: `Nook watches providers, routes what they emit to delivery targets, and hosts the
-Nook Pool that other Facile apps sync through. This is its terminal client: it
+	Use:   "antenne",
+	Short: "Terminal client for an Antenne instance",
+	Long: `Antenne watches providers, routes what they emit to delivery targets, and hosts the event
+bus that other Facile apps sync through. This is its terminal client: it
 reads the activity log, follows it live, and exercises delivery targets without
 opening the dashboard.
 
@@ -47,7 +47,7 @@ func init() {
 	// cobra's default is `<bin> version <v>`, which the installer cannot parse.
 	rootCmd.SetVersionTemplate("{{.Name}} {{.Version}}\n")
 
-	rootCmd.PersistentFlags().StringVar(&flagURL, "url", "", "Nook instance URL, overriding the stored one")
+	rootCmd.PersistentFlags().StringVar(&flagURL, "url", "", "Antenne instance URL, overriding the stored one")
 	rootCmd.PersistentFlags().BoolVar(&flagJSON, "json", false, "Print one JSON document and nothing else")
 	rootCmd.PersistentFlags().BoolVar(&flagNoColor, "no-color", false, "Disable colored output")
 
@@ -72,7 +72,7 @@ func Execute() {
 		return
 	case !commandStarted:
 		ui.Error("%s", err)
-		ui.Hint("run `nook <command> --help` for usage")
+		ui.Hint("run `antenne <command> --help` for usage")
 		os.Exit(2)
 	case errors.Is(err, ErrInterrupted):
 		// 128 + SIGINT, which is what a shell and every `while` loop expect
@@ -88,11 +88,11 @@ func Execute() {
 // that actually resolves it where the cause is knowable.
 //
 // The login command handles its own 401 — telling somebody who is running
-// `nook login` to run `nook login` explains nothing.
+// `antenne login` to run `antenne login` explains nothing.
 func report(err error) {
 	var apiErr *client.Error
 	if errors.As(err, &apiErr) && apiErr.Unauthenticated() {
-		ui.Error("not authenticated — run `nook login`")
+		ui.Error("not authenticated — run `antenne login`")
 		return
 	}
 	ui.Error("%s", err)
@@ -104,7 +104,7 @@ func signalContext() (context.Context, context.CancelFunc) {
 	return signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 }
 
-// connect builds a client from the stored configuration, with --url and NOOK_URL
+// connect builds a client from the stored configuration, with --url and ANTENNE_URL
 // overriding it in that order of specificity.
 func connect() (*client.Client, config.Config, error) {
 	cfg, err := config.Load()
@@ -112,7 +112,7 @@ func connect() (*client.Client, config.Config, error) {
 		return nil, cfg, err
 	}
 
-	if fromEnv := os.Getenv("NOOK_URL"); fromEnv != "" {
+	if fromEnv := os.Getenv("ANTENNE_URL"); fromEnv != "" {
 		cfg.URL = config.NormalizeURL(fromEnv)
 	}
 	if flagURL != "" {

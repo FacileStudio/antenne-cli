@@ -2,7 +2,7 @@ version: 2
 
 builds:
   - main: .
-    binary: nook
+    binary: antenne
     env:
       - CGO_ENABLED=0
     goos:
@@ -12,7 +12,7 @@ builds:
       - amd64
       - arm64
     ldflags:
-      - -s -w -X github.com/FacileStudio/nook-cli/cmd.version={{.Version}}
+      - -s -w -X github.com/FacileStudio/antenne-cli/cmd.version={{.Version}}
 
 archives:
   - formats:
@@ -23,9 +23,9 @@ checksum:
   name_template: checksums.txt
 
 brews:
-  - name: nook
-    homepage: https://github.com/FacileStudio/nook-cli
-    description: Terminal client for a Nook instance
+  - name: antenne
+    homepage: https://github.com/FacileStudio/antenne-cli
+    description: Terminal client for an Antenne instance
     directory: Formula
     repository:
       owner: FacileStudio
@@ -38,9 +38,9 @@ brews:
       name: goreleaserbot
       email: bot@goreleaser.com
     install: |
-      bin.install "nook"
+      bin.install "antenne"
     test: |
-      system "#{bin}/nook --version"
+      system "#{bin}/antenne --version"
 
 changelog:
   sort: asc

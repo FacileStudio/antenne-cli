@@ -6,13 +6,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
-var poolCmd = &cobra.Command{
-	Use:   "pool",
-	Short: "Show the Nook Pool's connected apps",
-	Long: `Reports the pool's boot epoch and every app currently connected, with the
+var busCmd = &cobra.Command{
+	Use:   "bus",
+	Short: "Show the Antenne bus connected apps",
+	Long: `Reports the bus's boot epoch and every app currently connected, with the
 channels it subscribed to.
 
 The epoch changes on every restart. An app that reconnects and sees a new one
@@ -73,5 +73,5 @@ func shortEpoch(epoch string) string {
 }
 
 func init() {
-	rootCmd.AddCommand(poolCmd)
+	rootCmd.AddCommand(busCmd)
 }

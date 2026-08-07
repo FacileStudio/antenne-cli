@@ -64,13 +64,13 @@ func TestTheErrorEnvelopeIsDecoded(t *testing.T) {
 	}
 }
 
-// Nook serves its dashboard from the same origin, so a wrong path returns 200
+// Antenne serves its dashboard from the same origin, so a wrong path returns 200
 // and HTML. Reporting a JSON syntax error there sends the reader hunting for a
 // bug in the API instead of a typo in the URL.
 func TestHTMLIsReportedAsAWrongURL(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte("<!doctype html><title>Nook</title>"))
+		w.Write([]byte("<!doctype html><title>Antenne</title>"))
 	}))
 	defer server.Close()
 
@@ -78,7 +78,7 @@ func TestHTMLIsReportedAsAWrongURL(t *testing.T) {
 	if err == nil {
 		t.Fatal("an HTML body was accepted as settings")
 	}
-	if !strings.Contains(err.Error(), "Nook instance") {
+	if !strings.Contains(err.Error(), "Antenne instance") {
 		t.Errorf("err = %q, want it to point at the URL", err)
 	}
 }

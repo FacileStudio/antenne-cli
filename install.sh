@@ -7,15 +7,15 @@
 
 set -euo pipefail
 
-NAME="Nook"
-BIN="nook"
-REPO="FacileStudio/nook-cli"
+NAME="Antenne"
+BIN="antenne"
+REPO="FacileStudio/antenne-cli"
 BRANCH="main"
 BUILD="go"
 SRC_SUBDIR="."
-ASSET="nook-cli"
+ASSET="antenne-cli"
 SKILL=""
-GO_VERSION_VAR="github.com/FacileStudio/nook-cli/cmd.version"
+GO_VERSION_VAR="github.com/FacileStudio/antenne-cli/cmd.version"
 
 # --- output -----------------------------------------------------------------
 
