@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/FacileStudio/nook-cli/internal/client"
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/client"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var testCmd = &cobra.Command{
@@ -19,7 +19,7 @@ answers "does this target work at all". The target is matched by id, or by name
 when that is unambiguous.
 
 With no target, sends one alert through the whole pipeline instead, routing
-rules included. That stays silent unless a target has opted into Nook's own
+rules included. That stays silent unless a target has opted into Antenne's own
 events by selecting the system provider, which is the point: it tests the
 routing, not the channel.`,
 	Args: cobra.MaximumNArgs(1),
@@ -91,7 +91,7 @@ func resolveTarget(ctx context.Context, api *client.Client, query string) (clien
 	case 1:
 		return matches[0], nil
 	case 0:
-		return client.Target{}, fmt.Errorf("no delivery target matches %q — run `nook targets` to list them", query)
+		return client.Target{}, fmt.Errorf("no delivery target matches %q — run `antenne targets` to list them", query)
 	}
 
 	names := make([]string, 0, len(matches))

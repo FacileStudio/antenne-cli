@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/FacileStudio/nook-cli/internal/client"
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/client"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var statusCmd = &cobra.Command{
@@ -90,7 +90,7 @@ delivering, and how much of that is working.`,
 		// and the dashboard is the only other place that says so.
 		if silentTargets > 0 {
 			ui.Warn("%d delivery target(s) have no provider or tag attached, so they receive nothing", silentTargets)
-			ui.Hint("run `nook targets` to see which")
+			ui.Hint("run `antenne targets` to see which")
 		}
 		return nil
 	},

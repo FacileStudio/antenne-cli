@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var replayCmd = &cobra.Command{
@@ -13,7 +13,7 @@ var replayCmd = &cobra.Command{
 the routing rules. Only events that carry an envelope can be replayed.
 
 The target is matched by id, or by name when that is unambiguous. Event ids come
-from ` + "`nook events --json`" + `.`,
+from ` + "`antenne events --json`" + `.`,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, stop := signalContext()

@@ -1,4 +1,4 @@
-// Package client talks to a Nook instance's HTTP API.
+// Package client talks to an Antenne instance's HTTP API.
 package client
 
 import (
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// SessionCookie is the cookie Nook's session travels in. The API authenticates
+// SessionCookie is the cookie Antenne's session travels in. The API authenticates
 // by cookie only, so the CLI stores the value and sends it back on every call.
 const SessionCookie = "nook_session"
 
@@ -39,7 +39,7 @@ type Client struct {
 }
 
 // New builds a client. The timeout is generous because a delivery test waits on
-// a third party — Matrix, SMTP — that Nook cannot hurry.
+// a third party — Matrix, SMTP — that Antenne cannot hurry.
 func New(baseURL, token string) *Client {
 	return &Client{
 		BaseURL: strings.TrimRight(baseURL, "/"),
@@ -63,7 +63,7 @@ func (c *Client) request(ctx context.Context, method, path string, body any) (*h
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("User-Agent", "nook-cli")
+	request.Header.Set("User-Agent", "antenne-cli")
 	if c.Token != "" {
 		request.AddCookie(&http.Cookie{Name: SessionCookie, Value: c.Token})
 	}
@@ -73,7 +73,7 @@ func (c *Client) request(ctx context.Context, method, path string, body any) (*h
 // do performs a request and decodes the response into out, if given.
 //
 // The body is read as text and parsed defensively rather than through a
-// streaming decoder: Nook serves its dashboard from the same origin, so a
+// streaming decoder: Antenne serves its dashboard from the same origin, so a
 // mistyped path returns 200 and HTML, and a bare JSON syntax error would hide
 // that the URL was simply wrong.
 func (c *Client) do(ctx context.Context, method, path string, body, out any) error {
@@ -100,7 +100,7 @@ func (c *Client) do(ctx context.Context, method, path string, body, out any) err
 		return nil
 	}
 	if err := json.Unmarshal(raw, out); err != nil {
-		return fmt.Errorf("%s answered with something that is not JSON — check the URL points at a Nook instance", c.BaseURL)
+		return fmt.Errorf("%s answered with something that is not JSON — check the URL points at an Antenne instance", c.BaseURL)
 	}
 	return nil
 }
@@ -235,7 +235,7 @@ func (c *Client) Replay(ctx context.Context, eventID, targetID string) error {
 	return c.do(ctx, http.MethodPost, path, map[string]string{"targetId": targetID}, nil)
 }
 
-// PoolStats returns the live state of the Nook Pool.
+// PoolStats returns the live state of the the Antenne bus.
 func (c *Client) PoolStats(ctx context.Context) (PoolStats, error) {
 	var stats PoolStats
 	err := c.do(ctx, http.MethodGet, "/api/pool/stats", nil, &stats)

@@ -3,7 +3,7 @@ go = "1.25"
 
 [tasks.build]
 description = "Build the binary into ./bin"
-run = "go build -o bin/nook ."
+run = "go build -o bin/antenne ."
 
 [tasks.check]
 description = "Run the full quality gate: gofmt, vet, test"

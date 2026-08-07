@@ -6,14 +6,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/FacileStudio/nook-cli/internal/client"
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/client"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var targetsCmd = &cobra.Command{
 	Use:   "targets",
 	Short: "List the delivery targets",
-	Long: `Lists every delivery target and what routes to it. Nook's routing is opt-in with
+	Long: `Lists every delivery target and what routes to it. Antenne's routing is opt-in with
 no fallthrough: a target naming no provider and no tag receives nothing, and is
 called out here as such.`,
 	Args: cobra.NoArgs,

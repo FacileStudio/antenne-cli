@@ -35,7 +35,7 @@ func TestCommentsAreSkipped(t *testing.T) {
 }
 
 // The SSE grammar allows an event to span several data lines, joined by a
-// newline. Nook does not send those today; the parser must not corrupt one if
+// newline. Antenne does not send those today; the parser must not corrupt one if
 // it ever does.
 func TestMultiLineDataIsJoined(t *testing.T) {
 	frames := collect("data: {\"a\":\ndata: 1}\n\n")

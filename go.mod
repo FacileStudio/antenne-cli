@@ -1,4 +1,4 @@
-module github.com/FacileStudio/nook-cli
+module github.com/FacileStudio/antenne-cli
 
 go 1.25.0
 

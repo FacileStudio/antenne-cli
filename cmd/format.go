@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FacileStudio/nook-cli/internal/client"
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/client"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var markupPattern = regexp.MustCompile(`<[^>]+>`)
 
-// plainText renders the small HTML subset Nook's alert messages carry as text.
+// plainText renders the small HTML subset Antenne's alert messages carry as text.
 // The CLI never interprets the markup: an alert body is third-party text.
 func plainText(value string) string {
 	text := strings.NewReplacer("<br/>", " ", "<br>", " ", "</p>", " ").Replace(value)

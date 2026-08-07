@@ -1,4 +1,4 @@
-# nook-cli — Documentation
+# antenne-cli — Documentation
 
 | Page | What's in it |
 |---|---|
