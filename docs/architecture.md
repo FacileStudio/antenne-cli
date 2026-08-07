@@ -20,7 +20,7 @@ standard library. A client for one API does not need an HTTP framework.
 ## Authentication
 
 Antenne's API authenticates by cookie and reads nothing else — no bearer header, no API key. So
-`antenne login` posts the password, reads `Set-Cookie: nook_session=…` off the response, and
+`antenne login` posts the password, reads `Set-Cookie: antenne_session=…` off the response, and
 stores the value; every later call sends it back as a `Cookie` header.
 
 The token is a bearer credential in a file, so the file is `0600` and its directory `0700`.
