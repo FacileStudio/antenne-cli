@@ -39,7 +39,7 @@ delivering, and how much of that is working.`,
 		if err != nil {
 			return err
 		}
-		pool, err := api.PoolStats(ctx)
+		pool, err := api.BusStats(ctx)
 		if err != nil {
 			return err
 		}
