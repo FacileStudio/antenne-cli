@@ -16,7 +16,7 @@ import (
 
 // SessionCookie is the cookie Antenne's session travels in. The API authenticates
 // by cookie only, so the CLI stores the value and sends it back on every call.
-const SessionCookie = "nook_session"
+const SessionCookie = "antenne_session"
 
 // Error carries the API's own error code alongside its message, so a caller can
 // branch on the code rather than parse prose.
@@ -235,10 +235,10 @@ func (c *Client) Replay(ctx context.Context, eventID, targetID string) error {
 	return c.do(ctx, http.MethodPost, path, map[string]string{"targetId": targetID}, nil)
 }
 
-// PoolStats returns the live state of the the Antenne bus.
-func (c *Client) PoolStats(ctx context.Context) (PoolStats, error) {
-	var stats PoolStats
-	err := c.do(ctx, http.MethodGet, "/api/pool/stats", nil, &stats)
+// BusStats returns the live state of the the Antenne bus.
+func (c *Client) BusStats(ctx context.Context) (BusStats, error) {
+	var stats BusStats
+	err := c.do(ctx, http.MethodGet, "/api/antenne/stats", nil, &stats)
 	return stats, err
 }
 
