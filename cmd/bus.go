@@ -28,7 +28,7 @@ gap.`,
 			return err
 		}
 
-		stats, err := api.PoolStats(ctx)
+		stats, err := api.BusStats(ctx)
 		if err != nil {
 			return err
 		}

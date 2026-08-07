@@ -131,18 +131,18 @@ type EventPage struct {
 	Stats  Stats   `json:"stats"`
 }
 
-// PoolApp is one app connected to the the Antenne bus.
-type PoolApp struct {
+// BusApp is one app connected to the the Antenne bus.
+type BusApp struct {
 	AppID    string   `json:"app_id"`
 	App      string   `json:"app"`
 	Channels []string `json:"channels"`
 }
 
-// PoolStats is the live state of the bus.
-type PoolStats struct {
-	Epoch       string    `json:"epoch"`
-	Connections int       `json:"connections"`
-	Apps        []PoolApp `json:"apps"`
+// BusStats is the live state of the bus.
+type BusStats struct {
+	Epoch       string   `json:"epoch"`
+	Connections int      `json:"connections"`
+	Apps        []BusApp `json:"apps"`
 }
 
 // Session is who the instance thinks the caller is.
