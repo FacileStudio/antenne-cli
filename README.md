@@ -1,6 +1,6 @@
-# nook-cli
+# antenne-cli
 
-Terminal client for a [Nook](https://github.com/FacileStudio/Nook) instance — read the alert
+Terminal client for a [Antenne](https://github.com/FacileStudio/Antenne) instance — read the alert
 log, follow it live, and exercise delivery targets without opening the dashboard.
 
 Configuration stays in the instance. This client never writes it.
@@ -12,7 +12,7 @@ Configuration stays in the instance. This client never writes it.
 - Names the delivery targets nothing routes to, which is why they look broken
 - Sends a test to one delivery target, or one alert through the whole pipeline
 - Replays a logged event to any target
-- Reports the Nook Pool's boot epoch and connected apps
+- Reports the Antenne bus boot epoch and connected apps
 - Emits `--json` on every command that carries data
 
 ## Stack
@@ -25,37 +25,37 @@ Configuration stays in the instance. This client never writes it.
 ## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/FacileStudio/nook-cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/FacileStudio/antenne-cli/main/install.sh | bash
 ```
 
 Installs to `~/.local/bin`. Pass `--bin-dir <dir>` to change that, `--source` to build from
 source, `--no-skill` to skip AI agent skill registration.
 
 ```sh
-brew install FacileStudio/tap/nook
+brew install FacileStudio/tap/antenne
 ```
 
 ## Usage
 
 ```sh
-nook login nook.facile.studio    # stores the URL and the session it returns
-nook status                      # what the instance is watching and delivering
-nook tail                        # follow the event stream until ctrl-c
-nook events -n 50 --source imap  # search and filter the log
-nook test "Ops room"             # send straight to one target
-nook targets --json | jq         # every command that carries data speaks JSON
+antenne login antenne.facile.studio    # stores the URL and the session it returns
+antenne status                      # what the instance is watching and delivering
+antenne tail                        # follow the event stream until ctrl-c
+antenne events -n 50 --source imap  # search and filter the log
+antenne test "Ops room"             # send straight to one target
+antenne targets --json | jq         # every command that carries data speaks JSON
 ```
 
 Full command reference: [docs/usage.md](docs/usage.md).
 
 ## Configuration
 
-There is one file, `~/.config/nook/config.json`, holding the instance URL and the session
-token. `nook login` writes it; nothing else does.
+There is one file, `~/.config/antenne/config.json`, holding the instance URL and the session
+token. `antenne login` writes it; nothing else does.
 
 | Variable | What it does |
 |---|---|
-| `NOOK_URL` | Instance URL, overriding the stored one. `--url` beats both |
+| `ANTENNE_URL` | Instance URL, overriding the stored one. `--url` beats both |
 | `XDG_CONFIG_HOME` | Moves the config directory |
 | `NO_COLOR` | Disables colour, as does `--no-color` and any non-TTY stdout |
 

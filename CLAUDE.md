@@ -1,7 +1,7 @@
-# nook-cli
+# antenne-cli
 
-Terminal client for a [Nook](https://github.com/FacileStudio/Nook) instance. Go, cobra, one
-binary named `nook`.
+Terminal client for a [Antenne](https://github.com/FacileStudio/Antenne) instance. Go, cobra, one
+binary named `antenne`.
 
 ## Commands
 
@@ -45,25 +45,25 @@ it, this repo is wrong.
   `commandStarted` is what distinguishes a usage error from a failed one.
 - Errors are lowercase, name what failed, and end with the fix after an em dash. The glyph
   is added by the printer, never baked into the message.
-- `--version` prints exactly `nook <semver>` — the installer parses that line.
+- `--version` prints exactly `antenne <semver>` — the installer parses that line.
 
 ## The client is read-only against settings
 
-It reads configuration and never writes it. There is no `nook providers add`.
+It reads configuration and never writes it. There is no `antenne providers add`.
 
-Nook's settings are one document replaced wholesale on save, with secrets redacted on the
+Antenne's settings are one document replaced wholesale on save, with secrets redacted on the
 way out and merged back on the way in. A CLI that PUT a partial document would have to
 reproduce that merge exactly, and getting it wrong overwrites live credentials with the
 redaction marker — which has happened once, from a script, and cost eleven of them.
 
 ## Traps worth not rediscovering
 
-- **Nook serves its dashboard on the same origin as its API**, so a wrong path returns `200`
+- **Antenne serves its dashboard on the same origin as its API**, so a wrong path returns `200`
   and HTML. The client reads bodies as text and reports that as a wrong URL rather than
   letting a JSON syntax error hide it.
 - **The API authenticates by cookie only.** No bearer header, no key. `login` reads
   `Set-Cookie` and every later call sends `Cookie: nook_session=…`.
-- **An instance with no `NOOK_ADMIN_PASSWORD` serves everyone as the admin** and sets no
+- **An instance with no `ANTENNE_ADMIN_PASSWORD` serves everyone as the admin** and sets no
   cookie. That is a success with an empty token, not a failure.
 - **The stream client has no timeout**, unlike every other call. A tail is supposed to stay
   open.

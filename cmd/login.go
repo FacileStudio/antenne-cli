@@ -10,16 +10,16 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"github.com/FacileStudio/nook-cli/internal/client"
-	"github.com/FacileStudio/nook-cli/internal/config"
-	"github.com/FacileStudio/nook-cli/internal/ui"
+	"github.com/FacileStudio/antenne-cli/internal/client"
+	"github.com/FacileStudio/antenne-cli/internal/config"
+	"github.com/FacileStudio/antenne-cli/internal/ui"
 )
 
 var flagPassword string
 
 var loginCmd = &cobra.Command{
 	Use:   "login [url]",
-	Short: "Authenticate with a Nook instance",
+	Short: "Authenticate with an Antenne instance",
 	Long: `Stores the instance URL and the session it returns, so later commands need
 neither. The URL defaults to the one already stored, and the password is read
 from the terminal without echoing unless --password is given.

@@ -14,7 +14,7 @@ const maxFrame = 8 << 20
 // readSSE parses a server-sent event stream, calling onData once per event with
 // its concatenated data payload.
 //
-// It implements only the part of the SSE grammar Nook emits — `data:` lines
+// It implements only the part of the SSE grammar Antenne emits — `data:` lines
 // terminated by a blank line — and skips comments and every other field. A
 // full parser would carry event ids and retry hints that this feed never sends.
 func readSSE(body io.Reader, onData func([]byte)) error {

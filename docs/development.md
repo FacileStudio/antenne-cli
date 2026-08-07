@@ -1,4 +1,4 @@
-# nook-cli — Development
+# antenne-cli — Development
 
 Local setup, the quality gate, and how a release happens.
 
@@ -11,12 +11,12 @@ to run.
 
 ```sh
 mise run hooks     # enable the tracked git hooks in this clone
-mise run build     # ./bin/nook
+mise run build     # ./bin/antenne
 ```
 
 ## Running against an instance
 
-The fastest loop is a locally running Nook, which the default URL already points at:
+The fastest loop is a locally running Antenne, which the default URL already points at:
 
 ```sh
 go run . login              # http://localhost:9090
@@ -26,7 +26,7 @@ go run . status
 Against a deployed one, `--url` avoids touching the stored config:
 
 ```sh
-go run . status --url https://nook.facile.studio
+go run . status --url https://antenne.facile.studio
 ```
 
 A second instance wants a second config directory rather than repeated `--url`, because the
@@ -61,7 +61,7 @@ instance.
 ## Adding a command
 
 One file per command in `cmd/`, registered from its own `init`. Follow
-[`Wiki/CLI-STANDARD.md`](https://github.com/FacileStudio/Nook) §3 and §4:
+[`Wiki/CLI-STANDARD.md`](https://github.com/FacileStudio/Antenne) §3 and §4:
 
 - `Short` is capitalized, imperative, no trailing period. So is every flag's help.
 - Output goes through `internal/ui` — never `fmt.Println` for status.

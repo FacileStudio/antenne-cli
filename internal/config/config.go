@@ -1,4 +1,4 @@
-// Package config stores which Nook instance the CLI talks to and the session
+// Package config stores which Antenne instance the CLI talks to and the session
 // it holds for it.
 package config
 
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// DefaultURL is where a locally running Nook listens. There is deliberately no
+// DefaultURL is where a locally running Antenne listens. There is deliberately no
 // facile.studio default: this is a self-hosted tool, and a CLI that silently
 // points at somebody else's instance is a surprise nobody wants.
 const DefaultURL = "http://localhost:9090"
@@ -25,13 +25,13 @@ type Config struct {
 // Dir is the configuration directory, honouring XDG_CONFIG_HOME.
 func Dir() string {
 	if base := os.Getenv("XDG_CONFIG_HOME"); base != "" {
-		return filepath.Join(base, "nook")
+		return filepath.Join(base, "antenne")
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return ".nook"
+		return ".antenne"
 	}
-	return filepath.Join(home, ".config", "nook")
+	return filepath.Join(home, ".config", "antenne")
 }
 
 // Path is the configuration file.
@@ -73,7 +73,7 @@ func Save(cfg Config) error {
 }
 
 // Clear removes the stored session but keeps the instance URL, so logging out
-// does not also make the user retype where their Nook is.
+// does not also make the user retype where their Antenne is.
 func Clear() error {
 	cfg, err := Load()
 	if err != nil {
@@ -83,8 +83,8 @@ func Clear() error {
 	return Save(cfg)
 }
 
-// NormalizeURL trims a trailing slash and supplies a scheme, so `nook login
-// nook.facile.studio` works as typed.
+// NormalizeURL trims a trailing slash and supplies a scheme, so `antenne login
+// antenne.facile.studio` works as typed.
 func NormalizeURL(raw string) string {
 	trimmed := strings.TrimRight(strings.TrimSpace(raw), "/")
 	if trimmed == "" {
