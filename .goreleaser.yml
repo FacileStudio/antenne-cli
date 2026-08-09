@@ -1,5 +1,7 @@
 version: 2
 
+project_name: antenne-cli
+
 builds:
   - main: .
     binary: antenne
@@ -21,26 +23,6 @@ archives:
 
 checksum:
   name_template: checksums.txt
-
-brews:
-  - name: antenne
-    homepage: https://github.com/FacileStudio/antenne-cli
-    description: Terminal client for an Antenne instance
-    directory: Formula
-    repository:
-      owner: FacileStudio
-      name: homebrew-tap
-      branch: main
-      # Explicit, because the release workflow only exports GITHUB_TOKEN and a
-      # cross-repo tap push needs its own.
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    commit_author:
-      name: goreleaserbot
-      email: bot@goreleaser.com
-    install: |
-      bin.install "antenne"
-    test: |
-      system "#{bin}/antenne --version"
 
 changelog:
   sort: asc
