@@ -1,6 +1,6 @@
 # antenne-cli
 
-Terminal client for a [Antenne](https://github.com/FacileStudio/Antenne) instance — read the alert
+Terminal client for an Antenne instance — read the alert
 log, follow it live, and exercise delivery targets without opening the dashboard.
 
 Configuration stays in the instance. This client never writes it.

@@ -1,6 +1,6 @@
 # antenne-cli
 
-Terminal client for a [Antenne](https://github.com/FacileStudio/Antenne) instance. Go, cobra, one
+Terminal client for an Antenne instance. Go, cobra, one
 binary named `antenne`.
 
 ## Commands
@@ -61,9 +61,16 @@ redaction marker — which has happened once, from a script, and cost eleven of 
 - **Antenne serves its dashboard on the same origin as its API**, so a wrong path returns `200`
   and HTML. The client reads bodies as text and reports that as a wrong URL rather than
   letting a JSON syntax error hide it.
-- **The API authenticates by cookie only.** No bearer header, no key. `login` reads
-  `Set-Cookie` and every later call sends `Cookie: antenne_session=…`.
-- **An instance with no `ANTENNE_ADMIN_PASSWORD` serves everyone as the admin** and sets no
-  cookie. That is a success with an empty token, not a failure.
+- **The API runs on `porte`, and the client authenticates with `Authorization: Bearer`.**
+  `login` posts an address and a password to `/api/auth/login` and takes the token from the
+  response *body*; the cookie it also sets is ignored deliberately. porte reads the cookie
+  before the Authorization header and refuses a cookie-authenticated *mutating* request with
+  no `X-Facile-CSRF` header, so a cookie client reads fine and 403s every write. Bearer is
+  exempt from that rule by construction.
+- **`login` asks `/api/auth/config` before prompting.** It says whether a password login
+  exists, whether SSO is mandatory, and which address to prefill. Do not recompute that
+  address from `ANTENNE_ADMIN_USERNAME` — it is the instance's to decide.
+- **The CLI cannot do the SSO browser flow yet.** Against an instance with no password login,
+  `login` says so rather than prompting for a credential the API would refuse.
 - **The stream client has no timeout**, unlike every other call. A tail is supposed to stay
   open.
