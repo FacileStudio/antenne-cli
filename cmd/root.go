@@ -111,13 +111,20 @@ func connect() (*client.Client, config.Config, error) {
 	if err != nil {
 		return nil, cfg, err
 	}
+	cfg = withURLOverrides(cfg)
+	return client.New(cfg.URL, cfg.Token), cfg, nil
+}
 
+// withURLOverrides applies ANTENNE_URL and then --url to a configuration, in
+// that order of specificity. It is separate from connect because logout has to
+// reach an instance even when the stored configuration could not be read, and
+// so cannot go through a helper that gives up on a parse error.
+func withURLOverrides(cfg config.Config) config.Config {
 	if fromEnv := os.Getenv("ANTENNE_URL"); fromEnv != "" {
 		cfg.URL = config.NormalizeURL(fromEnv)
 	}
 	if flagURL != "" {
 		cfg.URL = config.NormalizeURL(flagURL)
 	}
-
-	return client.New(cfg.URL, cfg.Token), cfg, nil
+	return cfg
 }
