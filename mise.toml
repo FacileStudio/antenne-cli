@@ -1,5 +1,6 @@
 [tools]
 go = "1.25"
+lefthook = "latest"
 
 [tasks.build]
 description = "Build the binary into ./bin"
@@ -16,3 +17,6 @@ run = "sh ./scripts/check.sh --format"
 [tasks.hooks]
 description = "Enable the tracked git hooks in this clone"
 run = "git config core.hooksPath .githooks"
+
+[hooks]
+postinstall = "lefthook install"
