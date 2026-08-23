@@ -26,3 +26,21 @@ checksum:
 
 changelog:
   sort: asc
+
+brews:
+  - name: antenne
+    homepage: https://github.com/FacileStudio/antenne-cli
+    description: Terminal client for an Antenne instance, the alert bus
+    directory: Formula
+    repository:
+      owner: FacileStudio
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    install: |
+      bin.install "antenne"
+    test: |
+      system "#{bin}/antenne", "--version"
