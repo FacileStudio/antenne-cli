@@ -61,7 +61,7 @@ instance.
 ## Adding a command
 
 One file per command in `cmd/`, registered from its own `init`. Follow
-`Wiki/CLI-STANDARD.md` §3 and §4:
+`~/.mycelium/memory/standards/cli.md` §3 and §4:
 
 - `Short` is capitalized, imperative, no trailing period. So is every flag's help.
 - Output goes through `internal/ui` — never `fmt.Println` for status.

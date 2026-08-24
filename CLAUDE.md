@@ -30,8 +30,8 @@ reason — a client for one API does not need a framework.
 
 ## Conventions
 
-These come from `Wiki/CLI-STANDARD.md`, which is normative. When this repo disagrees with
-it, this repo is wrong.
+These come from `~/.mycelium/memory/standards/cli.md`, which is normative and synced to every
+machine by mycelium. When this repo disagrees with it, this repo is wrong.
 
 - **`Short` and flag help: capitalized, imperative, no trailing period.** `"List projects"`,
   never `"Lists projects."`.
