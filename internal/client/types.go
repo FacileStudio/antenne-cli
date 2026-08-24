@@ -150,6 +150,17 @@ type Session struct {
 	Authenticated    bool   `json:"authenticated"`
 	PasswordRequired bool   `json:"passwordRequired"`
 	Username         string `json:"username"`
+	Email            string `json:"email"`
+}
+
+// AuthConfig is what an instance accepts, read before any credential is asked
+// for. Its keys are snake_case because porte owns the route, not Antenne.
+type AuthConfig struct {
+	SSOOnly          bool   `json:"sso_only"`
+	OIDCEnabled      bool   `json:"oidc_enabled"`
+	PasswordRequired bool   `json:"password_required"`
+	Username         string `json:"username"`
+	Email            string `json:"email"`
 }
 
 // EventQuery filters the activity log.

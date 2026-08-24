@@ -49,7 +49,7 @@ the same script.
 | File | What it pins |
 |---|---|
 | `internal/client/sse_test.go` | the event-stream grammar: framing, keep-alive comments, multi-line data, a truncated stream |
-| `internal/client/client_test.go` | the session cookie, the error envelope, an open instance's empty token, and HTML reported as a wrong URL |
+| `internal/client/client_test.go` | that the token is read from the login body and sent as a bearer header with no cookie, the error envelope, and HTML reported as a wrong URL |
 
 ```sh
 go test ./...
@@ -61,7 +61,7 @@ instance.
 ## Adding a command
 
 One file per command in `cmd/`, registered from its own `init`. Follow
-[`Wiki/CLI-STANDARD.md`](https://github.com/FacileStudio/Antenne) §3 and §4:
+`Wiki/CLI-STANDARD.md` §3 and §4:
 
 - `Short` is capitalized, imperative, no trailing period. So is every flag's help.
 - Output goes through `internal/ui` — never `fmt.Println` for status.

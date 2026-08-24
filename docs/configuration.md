@@ -52,8 +52,8 @@ XDG_CONFIG_HOME=~/.config/antenne-staging antenne login antenne-staging.example
 XDG_CONFIG_HOME=~/.config/antenne-staging antenne tail
 ```
 
-`--url` alone reuses the stored session, which is only useful against an instance that
-requires no password. For a second authenticated instance, use the second config directory.
+`--url` alone reuses the stored token, which another instance will not accept. For a second
+authenticated instance, use the second config directory.
 
 ## Colour
 

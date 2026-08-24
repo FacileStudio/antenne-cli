@@ -14,10 +14,6 @@ import (
 	"time"
 )
 
-// SessionCookie is the cookie Antenne's session travels in. The API authenticates
-// by cookie only, so the CLI stores the value and sends it back on every call.
-const SessionCookie = "antenne_session"
-
 // Error carries the API's own error code alongside its message, so a caller can
 // branch on the code rather than parse prose.
 type Error struct {
@@ -64,8 +60,13 @@ func (c *Client) request(ctx context.Context, method, path string, body any) (*h
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("User-Agent", "antenne-cli")
+	// The session travels as a bearer token and never as a cookie. porte reads
+	// the cookie first and refuses a cookie-authenticated mutating request
+	// without an X-Facile-CSRF header, which would break every write while
+	// leaving every read working. Nothing attaches a bearer header on the
+	// caller's behalf, so bearer is exempt from that rule by construction.
 	if c.Token != "" {
-		request.AddCookie(&http.Cookie{Name: SessionCookie, Value: c.Token})
+		request.Header.Set("Authorization", "Bearer "+c.Token)
 	}
 	return request, nil
 }
@@ -118,38 +119,24 @@ func decodeError(raw []byte, status int) error {
 	return &Error{Status: status, Code: "unknown", Message: fmt.Sprintf("HTTP %d", status)}
 }
 
-// Login exchanges the admin password for a session token.
-func (c *Client) Login(ctx context.Context, password string) (string, error) {
-	request, err := c.request(ctx, http.MethodPost, "/api/login", map[string]string{"password": password})
-	if err != nil {
-		return "", err
+// Login exchanges an address and a password for a session token.
+//
+// The instance sets a cookie as well, for the dashboard's benefit. The CLI
+// reads the token off the body instead, because that is the credential it can
+// send as a bearer header.
+func (c *Client) Login(ctx context.Context, email, password string) (string, error) {
+	var issued struct {
+		Token string `json:"token"`
 	}
-
-	response, err := c.http.Do(request)
-	if err != nil {
-		return "", fmt.Errorf("cannot reach %s — %w", c.BaseURL, err)
-	}
-	defer response.Body.Close()
-
-	raw, _ := io.ReadAll(io.LimitReader(response.Body, 1<<20))
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return "", decodeError(raw, response.StatusCode)
-	}
-
-	for _, cookie := range response.Cookies() {
-		if cookie.Name == SessionCookie && cookie.Value != "" {
-			return cookie.Value, nil
-		}
-	}
-
-	// An instance with no admin password configured answers 200 and sets no
-	// cookie, because every caller is already served as the admin.
-	return "", nil
+	body := map[string]string{"email": email, "password": password}
+	err := c.do(ctx, http.MethodPost, "/api/auth/login", body, &issued)
+	return issued.Token, err
 }
 
-// Logout revokes the stored session server-side.
+// Logout revokes the stored session server-side. It is idempotent, so a token
+// the instance has already forgotten is not an error.
 func (c *Client) Logout(ctx context.Context) error {
-	return c.do(ctx, http.MethodPost, "/api/logout", struct{}{}, nil)
+	return c.do(ctx, http.MethodPost, "/api/auth/logout", struct{}{}, nil)
 }
 
 // Session reports who the instance thinks the caller is.
@@ -159,12 +146,17 @@ func (c *Client) Session(ctx context.Context) (Session, error) {
 	return session, err
 }
 
-// PublicSession reports whether the instance requires a password at all,
-// without holding one.
-func (c *Client) PublicSession(ctx context.Context) (Session, error) {
-	var session Session
-	err := c.do(ctx, http.MethodGet, "/api/session/public", nil, &session)
-	return session, err
+// AuthConfig reports what the instance accepts, without holding a credential:
+// whether a password login exists at all, whether single sign-on is available
+// or mandatory, and which address the bootstrap account signs in with.
+//
+// The address comes from the instance rather than being recomputed here. How a
+// login label becomes an address is Antenne's business, and a CLI that guessed
+// would be wrong the first time that rule changed.
+func (c *Client) AuthConfig(ctx context.Context) (AuthConfig, error) {
+	var config AuthConfig
+	err := c.do(ctx, http.MethodGet, "/api/auth/config", nil, &config)
+	return config, err
 }
 
 // Health probes the instance. It needs no session, so it is the right call for

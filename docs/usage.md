@@ -34,11 +34,16 @@ antenne login --password "$ANTENNE_PASSWORD" # for a script
 antenne login                             # re-authenticate against the stored URL
 ```
 
-The URL takes a bare hostname and assumes `https://`. The password is read from the terminal
-without echo, or from stdin when piped.
+The URL takes a bare hostname and assumes `https://`. The account is identified by an address:
+the prompt prefills the one the instance reports and accepts a bare Enter, `--email` sets it
+outright. The password is read from the terminal without echo, or from stdin when piped.
 
-An instance running with no `ANTENNE_ADMIN_PASSWORD` serves every caller as the admin. Against
-one of those, `login` says so and stores only the URL — there is no session to hold.
+An instance that signs in only through single sign-on cannot be signed into from here yet —
+the browser flow is not implemented — and `login` says so instead of prompting.
+
+A config file written by an older release holds a cookie-era token. It simply stops being
+accepted: any command answers *"not authenticated — run `antenne login`"*, and one login
+replaces it.
 
 ## `antenne logout`
 

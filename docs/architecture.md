@@ -19,17 +19,27 @@ standard library. A client for one API does not need an HTTP framework.
 
 ## Authentication
 
-Antenne's API authenticates by cookie and reads nothing else — no bearer header, no API key. So
-`antenne login` posts the password, reads `Set-Cookie: antenne_session=…` off the response, and
-stores the value; every later call sends it back as a `Cookie` header.
+Antenne's API runs on the suite's `porte` kit. `antenne login` posts an address and a password
+to `/api/auth/login` and stores the token the response *body* carries; every later call sends
+it as `Authorization: Bearer …`.
+
+The instance sets a session cookie on that same response, and the CLI ignores it on purpose.
+porte reads the cookie before the Authorization header, and refuses a cookie-authenticated
+*mutating* request that carries no `X-Facile-CSRF` header — so a cookie client that forgot the
+header sees every read succeed and every write 403, which reads as "the tool works, saving is
+broken". Bearer is exempt from that rule by construction, because nothing attaches a bearer
+header on the caller's behalf.
 
 The token is a bearer credential in a file, so the file is `0600` and its directory `0700`.
 There is no keychain integration: on Go that means either cgo or a dependency, and the file
 is what every other Go tool on the machine already uses.
 
-An instance running with no `ANTENNE_ADMIN_PASSWORD` serves every caller as the admin and sets
-no cookie. That is a success with an empty token, not a failure — `login` checks
-`/api/session/public` first so it never prompts for a password that does not exist.
+`login` reads `/api/auth/config` before prompting for anything. It reports whether a password
+login exists at all, whether single sign-on is mandatory, and which address the bootstrap
+account signs in with — which is what the prompt prefills. The address is the instance's to
+decide and is never recomputed here; a client that guessed would be wrong the first time that
+rule changed. An instance that only federates gets told it cannot be signed into from here
+yet, rather than being asked for a password it would refuse.
 
 ## Why the response body is read as text
 

@@ -2,43 +2,40 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 )
 
-func TestLoginReturnsTheSessionCookie(t *testing.T) {
+// The login sets a cookie as well, for the dashboard. The CLI must take the
+// token from the body: the cookie is the credential it deliberately does not
+// use.
+func TestLoginReadsTheTokenFromTheBodyNotTheCookie(t *testing.T) {
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{Name: SessionCookie, Value: "token-abc"})
-		w.Write([]byte(`{"ok":true}`))
+		if r.URL.Path != "/api/auth/login" {
+			t.Errorf("path = %q, want /api/auth/login", r.URL.Path)
+		}
+		json.NewDecoder(r.Body).Decode(&body)
+		http.SetCookie(w, &http.Cookie{Name: "antenne_session", Value: "cookie-value"})
+		w.Write([]byte(`{"user_id":"1","token":"token-abc"}`))
 	}))
 	defer server.Close()
 
-	token, err := New(server.URL, "").Login(context.Background(), "hunter2")
+	token, err := New(server.URL, "").Login(context.Background(), "admin@antenne.local", "hunter2")
 	if err != nil {
 		t.Fatalf("login: %v", err)
 	}
 	if token != "token-abc" {
-		t.Errorf("token = %q, want the cookie value", token)
+		t.Errorf("token = %q, want the body's token", token)
 	}
-}
-
-// An instance with no admin password answers 200 and sets no cookie, because
-// every caller is already the admin. That is a success with an empty token, not
-// a failure.
-func TestLoginAgainstAnOpenInstanceReturnsNoToken(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"ok":true}`))
-	}))
-	defer server.Close()
-
-	token, err := New(server.URL, "").Login(context.Background(), "")
-	if err != nil {
-		t.Fatalf("login: %v", err)
-	}
-	if token != "" {
-		t.Errorf("token = %q, want empty", token)
+	if body.Email != "admin@antenne.local" || body.Password != "hunter2" {
+		t.Errorf("body = %+v", body)
 	}
 }
 
@@ -83,21 +80,37 @@ func TestHTMLIsReportedAsAWrongURL(t *testing.T) {
 	}
 }
 
-// The session travels as a cookie; the API reads nothing else.
-func TestTheSessionTokenIsSentAsACookie(t *testing.T) {
-	var seen string
+// The session travels as a bearer header and never as a cookie: porte reads the
+// cookie first, and a cookie-authenticated write without an X-Facile-CSRF
+// header is refused while every read keeps working — a failure mode that reads
+// as "the tool works, saving is broken".
+func TestTheSessionTokenIsSentAsBearerAndNeverAsACookie(t *testing.T) {
+	var authorization string
+	var cookies int
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if cookie, err := r.Cookie(SessionCookie); err == nil {
-			seen = cookie.Value
-		}
+		authorization = r.Header.Get("Authorization")
+		cookies = len(r.Cookies())
 		w.Write([]byte(`{"authenticated":true}`))
 	}))
 	defer server.Close()
 
-	if _, err := New(server.URL, "token-xyz").Session(context.Background()); err != nil {
+	api := New(server.URL, "token-xyz")
+	if _, err := api.Session(context.Background()); err != nil {
 		t.Fatalf("session: %v", err)
 	}
-	if seen != "token-xyz" {
-		t.Errorf("cookie = %q, want the stored token", seen)
+	if authorization != "Bearer token-xyz" {
+		t.Errorf("Authorization = %q, want the stored token as a bearer", authorization)
+	}
+	if cookies != 0 {
+		t.Errorf("cookies = %d, want none", cookies)
+	}
+
+	// A mutating call is the one the CSRF rule would refuse, so it is the one
+	// worth checking as well as the read.
+	if err := api.TestAlert(context.Background()); err != nil {
+		t.Fatalf("test alert: %v", err)
+	}
+	if authorization != "Bearer token-xyz" || cookies != 0 {
+		t.Errorf("mutating call sent Authorization %q and %d cookies", authorization, cookies)
 	}
 }
