@@ -160,3 +160,53 @@ The Antenne bus boot epoch and every connected app with the channels it subscrib
 
 The epoch changes on every restart. An app that reconnects and sees a new one knows to
 resync from its own cursor rather than trust its offsets across the gap.
+
+## `antenne keys`
+
+Manage API keys for connected applications.
+
+### `antenne keys list`
+
+List registered API keys.
+
+```sh
+antenne keys list
+antenne keys list --app myapp
+antenne keys list --json
+```
+
+| Flag | Default | What it does |
+|---|---|---|
+| `--app <name>` | — | Filter keys by application name |
+
+### `antenne keys create`
+
+Create a secret backend key or a public browser key.
+
+```sh
+antenne keys create --app myapp
+antenne keys create --app myapp --public --origins "https://myapp.local" --quota 5000
+```
+
+| Flag | Default | What it does |
+|---|---|---|
+| `--app <name>` | *(required)* | Application name |
+| `--public` | `false` | Create a public browser key instead of a secret backend key |
+| `--origins <urls>` | — | Comma-separated allowed origins for public keys |
+| `--quota <N>` | `0` | Daily event quota limit for public keys (0 for unlimited) |
+
+The created token is printed on stdout and is never displayed again.
+
+### `antenne keys revoke <id>`
+
+Revoke an API key by its numeric ID.
+
+```sh
+antenne keys revoke 42
+antenne keys revoke 42 --yes
+```
+
+| Flag | Default | What it does |
+|---|---|---|
+| `-y`, `--yes` | `false` | Confirm revocation without prompting |
+

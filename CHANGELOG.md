@@ -10,6 +10,14 @@ record what shipped rather than what was written down at the time.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-09-01
+
+### Added
+
+- `antenne keys` command group for API key management (`list`, `create`, `revoke`).
+  Mint secret backend keys and public browser keys, list keys with optional
+  `--app` filtering, and revoke keys by ID.
+
 ## [0.2.0] — 2026-08-24
 
 ### Changed
@@ -86,7 +94,8 @@ record what shipped rather than what was written down at the time.
   stream returns. Anything else is reported verbatim, and a rejected session
   still aborts rather than hammering the login rate limiter.
 
-[Unreleased]: https://github.com/FacileStudio/antenne-cli/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/FacileStudio/antenne-cli/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/FacileStudio/antenne-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/FacileStudio/antenne-cli/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/FacileStudio/antenne-cli/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/FacileStudio/antenne-cli/compare/v0.1.0...v0.1.1

@@ -17,9 +17,10 @@ binary named `antenne`.
 ```
 main.go            hands off to cmd
 cmd/               one file per command; root.go owns flags and exit codes,
-                   format.go the rendering shared between them
+                   format.go the rendering shared between them,
+                   keys.go API key management
 internal/
-  client/          the HTTP surface (client.go) and the SSE reader (sse.go)
+  client/          the HTTP surface (client.go, keys.go) and the SSE reader (sse.go)
   config/          the instance URL and the session token
   ui/              CLI-STANDARD §4 output vocabulary, copied verbatim
 install.sh         generated from Wiki/install.sh.template; only the config block differs

@@ -10,6 +10,7 @@ Configuration stays in the instance. This client never writes it.
 - Follows the activity log live, one line per event, filtered by source
 - Lists providers and delivery targets with what routes to what
 - Names the delivery targets nothing routes to, which is why they look broken
+- Manages API keys (list, create, revoke) for connected apps
 - Sends a test to one delivery target, or one alert through the whole pipeline
 - Replays a logged event to any target
 - Reports the Antenne bus boot epoch and connected apps
@@ -44,6 +45,8 @@ antenne login antenne.facile.studio    # stores the URL and the session it retur
 antenne status                      # what the instance is watching and delivering
 antenne tail                        # follow the event stream until ctrl-c
 antenne events -n 50 --source imap  # search and filter the log
+antenne keys list                   # list registered API keys
+antenne keys create --app myapp     # create a secret API key
 antenne test "Ops room"             # send straight to one target
 antenne targets --json | jq         # every command that carries data speaks JSON
 ```
