@@ -16,10 +16,11 @@ mise run build     # ./bin/antenne
 
 ## Running against an instance
 
-The fastest loop is a locally running Antenne, which the default URL already points at:
+The default URL is the hosted instance, https://antenne.facile.studio. For a locally running
+Antenne, pass its address:
 
 ```sh
-go run . login              # http://localhost:9090
+go run . login http://localhost:9090
 go run . status
 ```
 

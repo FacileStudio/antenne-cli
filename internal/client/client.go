@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -131,6 +132,24 @@ func (c *Client) Login(ctx context.Context, email, password string) (string, err
 	body := map[string]string{"email": email, "password": password}
 	err := c.do(ctx, http.MethodPost, "/api/auth/login", body, &issued)
 	return issued.Token, err
+}
+
+// Exchange trades the one-time code from a browser sign-in for a session token.
+func (c *Client) Exchange(ctx context.Context, code string) (string, error) {
+	var issued struct {
+		Token string `json:"token"`
+	}
+	if err := c.do(ctx, http.MethodPost, "/api/auth/oidc/exchange", map[string]string{"code": code}, &issued); err != nil {
+		var apiErr *Error
+		if errors.As(err, &apiErr) && apiErr.Unauthenticated() {
+			return "", fmt.Errorf("the login code was refused, it is good for sixty seconds, run 'antenne login' again")
+		}
+		return "", err
+	}
+	if issued.Token == "" {
+		return "", fmt.Errorf("%s returned no token", c.BaseURL)
+	}
+	return issued.Token, nil
 }
 
 // Logout revokes the stored session server-side. It is idempotent, so a token

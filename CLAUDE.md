@@ -71,7 +71,8 @@ redaction marker — which has happened once, from a script, and cost eleven of 
 - **`login` asks `/api/auth/config` before prompting.** It says whether a password login
   exists, whether SSO is mandatory, and which address to prefill. Do not recompute that
   address from `ANTENNE_ADMIN_USERNAME` — it is the instance's to decide.
-- **The CLI cannot do the SSO browser flow yet.** Against an instance with no password login,
-  `login` says so rather than prompting for a credential the API would refuse.
+- **`login` is the browser flow by default.** porte loopback listener, `/api/auth/oidc?flow=cli`,
+  code traded at `/api/auth/oidc/exchange`. No browser or `--no-listener` pastes the code instead;
+  `--email`/`--password` use the instance password. The default URL is https://antenne.facile.studio.
 - **The stream client has no timeout**, unlike every other call. A tail is supposed to stay
   open.

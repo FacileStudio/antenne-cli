@@ -26,20 +26,20 @@ data, so `antenne targets --json | jq` and `antenne tail --json | while read -r 
 
 ## `antenne login [url]`
 
-Stores the instance URL and the session it returns.
+Signs in through your browser and stores the instance URL and the session it returns. A session
+already open with another Facile tool completes the login with no prompt and no code to copy.
 
 ```sh
-antenne login antenne.facile.studio          # prompts, without echoing
-antenne login --password "$ANTENNE_PASSWORD" # for a script
-antenne login                             # re-authenticate against the stored URL
+antenne login                                # https://antenne.facile.studio, through the browser
+antenne login antenne.example.org            # another instance
+antenne login --no-listener                  # no browser here: paste the code from another machine
+antenne login --password "$ANTENNE_PASSWORD" # the instance password, for a script
 ```
 
-The URL takes a bare hostname and assumes `https://`. The account is identified by an address:
-the prompt prefills the one the instance reports and accepts a bare Enter, `--email` sets it
-outright. The password is read from the terminal without echo, or from stdin when piped.
-
-An instance that signs in only through single sign-on cannot be signed into from here yet —
-the browser flow is not implemented — and `login` says so instead of prompting.
+The URL is the argument, then `ANTENNE_URL`, then the stored one, then
+`https://antenne.facile.studio`. A bare hostname assumes `https://`. A machine with no browser
+shows the code-paste flow automatically. `--email` and `--password` sign in with the instance
+password on an instance that has one: the prompt prefills the address the instance reports.
 
 A config file written by an older release holds a cookie-era token. It simply stops being
 accepted: any command answers *"not authenticated — run `antenne login`"*, and one login

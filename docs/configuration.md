@@ -34,11 +34,10 @@ the host again.
 Most specific wins:
 
 ```
---url  >  ANTENNE_URL  >  the stored url  >  http://localhost:9090
+--url  >  ANTENNE_URL  >  the stored url  >  https://antenne.facile.studio
 ```
 
-The fallback is localhost on purpose. This is a self-hosted tool, and a client that silently
-pointed at somebody else's instance would be a surprise nobody wants.
+The fallback is the hosted instance. Point a self-hosted one at it with `ANTENNE_URL` or `antenne login <url>`.
 
 ## Several instances
 

@@ -2,12 +2,16 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 
+	"github.com/FacileStudio/porte/loopback"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
@@ -17,103 +21,195 @@ import (
 )
 
 var (
-	flagEmail    string
-	flagPassword string
+	flagEmail      string
+	flagPassword   string
+	flagNoBrowser  bool
+	flagNoListener bool
+)
+
+const (
+	ssoAppName = "Antenne"
+	apiMount   = "/api"
 )
 
 var loginCmd = &cobra.Command{
 	Use:   "login [url]",
 	Short: "Authenticate with an Antenne instance",
-	Long: `Stores the instance URL and the session token it returns, so later commands need
-neither. The URL defaults to the one already stored, the address is prefilled
-with the one the instance reports, and the password is read from the terminal
-without echoing unless --password is given.
+	Long: `Signs in through your browser. A session already open with another Facile tool
+completes the login without a prompt, and the session lands in the config file.
 
-An instance that only federates through single sign-on cannot be signed into
-from here yet; this command says so rather than asking for a password it would
-refuse.`,
+The URL is the argument, then ANTENNE_URL, then the stored one, then
+https://antenne.facile.studio.
+
+A machine with no browser, or --no-listener, shows a code on the sign-in page
+for you to paste back. --email or --password sign in with the instance password
+instead, on an instance that has one.`,
 	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, stop := signalContext()
 		defer stop()
 
-		// Loaded, not built: the stored document is read and only the two
-		// fields this command owns are replaced, so a key added later survives
-		// a login instead of being reset to its zero value.
 		cfg, err := config.Load()
 		if err != nil {
 			return err
 		}
-
+		cfg = withURLOverrides(cfg)
 		if len(args) == 1 {
 			cfg.URL = config.NormalizeURL(args[0])
-		}
-		if flagURL != "" {
-			cfg.URL = config.NormalizeURL(flagURL)
 		}
 		if cfg.URL == "" {
 			cfg.URL = config.DefaultURL
 		}
 
 		api := client.New(cfg.URL, "")
-
-		// Ask the instance what it accepts before prompting for anything. An
-		// instance with no password login has no endpoint to send one to, and
-		// the address to prefill is the instance's to decide.
 		authConfig, err := api.AuthConfig(ctx)
 		if err != nil {
 			return err
 		}
-		if !authConfig.PasswordRequired {
-			if authConfig.SSOOnly || authConfig.OIDCEnabled {
-				return fmt.Errorf("%s signs in through single sign-on, and this client cannot run the browser flow yet — sign in from the dashboard", cfg.URL)
-			}
-			return fmt.Errorf("%s accepts no password login — set ANTENNE_ADMIN_PASSWORD on the instance and restart it", cfg.URL)
-		}
 
-		email := strings.TrimSpace(flagEmail)
-		if email == "" {
-			email, err = readEmail(authConfig.Email)
-			if err != nil {
-				return err
-			}
+		passwordRequested := flagEmail != "" || flagPassword != ""
+		var who string
+		switch {
+		case authConfig.OIDCEnabled && !passwordRequested && (authConfig.SSOOnly || flagNoListener || browserAvailable()):
+			flagNoListener = flagNoListener || !browserAvailable()
+			cfg.Token, err = ssoLogin(ctx, api, cfg.URL)
+			who = cfg.URL
+		case authConfig.PasswordRequired:
+			cfg.Token, who, err = passwordLogin(ctx, api, cfg.URL, authConfig)
+		case authConfig.OIDCEnabled:
+			flagNoListener = true
+			cfg.Token, err = ssoLogin(ctx, api, cfg.URL)
+			who = cfg.URL
+		default:
+			return fmt.Errorf("%s accepts no login, set ANTENNE_ADMIN_PASSWORD on the instance and restart it", cfg.URL)
 		}
-		if email == "" {
-			return fmt.Errorf("no address given — pass --email or type one at the prompt")
-		}
-
-		password := flagPassword
-		if password == "" {
-			password, err = readPassword(email)
-			if err != nil {
-				return err
-			}
-		}
-		if strings.TrimSpace(password) == "" {
-			return fmt.Errorf("no password given — pass --password or type one at the prompt")
-		}
-
-		token, err := api.Login(ctx, email, password)
 		if err != nil {
-			var apiErr *client.Error
-			if errors.As(err, &apiErr) && apiErr.Unauthenticated() {
-				// The instance answers the same way to an unknown address and
-				// a wrong password, on purpose. Guessing which it was here
-				// would undo that.
-				return fmt.Errorf("wrong address or password for %s", cfg.URL)
-			}
 			return err
 		}
 
-		cfg.Token = token
 		if err := config.Save(cfg); err != nil {
 			return err
 		}
-
-		ui.Success("logged in to %s as %s", cfg.URL, email)
+		ui.Success("logged in to %s", who)
 		ui.Hint("session stored in %s", config.Path())
 		return nil
 	},
+}
+
+// browserAvailable reports whether opening a URL can plausibly reach a person:
+// an interactive terminal, no --no-browser, an opener on PATH and a display.
+func browserAvailable() bool {
+	if flagNoBrowser || !term.IsTerminal(int(os.Stdout.Fd())) {
+		return false
+	}
+	opener := "xdg-open"
+	switch runtime.GOOS {
+	case "darwin":
+		opener = "open"
+	case "windows":
+		opener = "cmd"
+	}
+	if _, err := exec.LookPath(opener); err != nil {
+		return false
+	}
+	if runtime.GOOS == "darwin" || runtime.GOOS == "windows" {
+		return os.Getenv("SSH_CONNECTION") == ""
+	}
+	return os.Getenv("DISPLAY") != "" || os.Getenv("WAYLAND_DISPLAY") != ""
+}
+
+// ssoLogin signs in through the browser and returns the session token. The
+// server owns the exchange: the browser lands on a loopback port with a
+// one-time code, or shows the code for pasting when there is no listener.
+func ssoLogin(ctx context.Context, api *client.Client, serverURL string) (string, error) {
+	if flagNoListener {
+		return ssoLoginByPaste(ctx, api, serverURL)
+	}
+
+	listener, err := loopback.Listen()
+	if err != nil {
+		return "", fmt.Errorf("cannot open a loopback port to receive the login: %w", err)
+	}
+	defer listener.Close()
+	listener.AppName = ssoAppName
+
+	state, err := loopback.RandomState()
+	if err != nil {
+		return "", err
+	}
+
+	authURL := listener.LoginURL(serverURL, apiMount, state)
+	if !loopback.OpenBrowser(authURL) {
+		ui.Step("open %s", authURL)
+	}
+	ui.Step("waiting for the browser to sign you in to %s", serverURL)
+
+	code, err := listener.WaitForCode(ctx, state)
+	if err != nil {
+		if errors.Is(err, loopback.ErrTimeout) {
+			return "", fmt.Errorf("timed out waiting for the browser, run 'antenne login' again")
+		}
+		return "", err
+	}
+	return api.Exchange(ctx, code)
+}
+
+// ssoLoginByPaste leaves the loopback port off the login URL, which makes the
+// server show the code on the page instead of redirecting it to 127.0.0.1.
+func ssoLoginByPaste(ctx context.Context, api *client.Client, serverURL string) (string, error) {
+	authURL := strings.TrimRight(serverURL, "/") + apiMount + "/auth/oidc?flow=cli"
+	if !flagNoBrowser && browserAvailable() {
+		loopback.OpenBrowser(authURL)
+	}
+	ui.Step("open %s", authURL)
+
+	fmt.Fprint(os.Stderr, "Paste the code from that page: ")
+	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil && line == "" {
+		return "", fmt.Errorf("failed to read the login code: %w", err)
+	}
+	code := strings.TrimSpace(line)
+	if code == "" {
+		return "", fmt.Errorf("no login code was pasted, the code is good for sixty seconds so run 'antenne login --no-listener' again")
+	}
+	return api.Exchange(ctx, code)
+}
+
+// passwordLogin signs in with the instance password and returns the token and
+// the address it was issued to.
+func passwordLogin(ctx context.Context, api *client.Client, serverURL string, authConfig client.AuthConfig) (string, string, error) {
+	email := strings.TrimSpace(flagEmail)
+	var err error
+	if email == "" {
+		email, err = readEmail(authConfig.Email)
+		if err != nil {
+			return "", "", err
+		}
+	}
+	if email == "" {
+		return "", "", fmt.Errorf("no address given, pass --email or type one at the prompt")
+	}
+
+	password := flagPassword
+	if password == "" {
+		password, err = readPassword(email)
+		if err != nil {
+			return "", "", err
+		}
+	}
+	if strings.TrimSpace(password) == "" {
+		return "", "", fmt.Errorf("no password given, pass --password or type one at the prompt")
+	}
+
+	token, err := api.Login(ctx, email, password)
+	if err != nil {
+		var apiErr *client.Error
+		if errors.As(err, &apiErr) && apiErr.Unauthenticated() {
+			return "", "", fmt.Errorf("wrong address or password for %s", serverURL)
+		}
+		return "", "", err
+	}
+	return token, fmt.Sprintf("%s as %s", serverURL, email), nil
 }
 
 // readEmail prompts on stderr with the instance's own address prefilled, so the
@@ -156,5 +252,7 @@ func readPassword(email string) (string, error) {
 func init() {
 	loginCmd.Flags().StringVar(&flagEmail, "email", "", "Address to sign in with instead of prompting")
 	loginCmd.Flags().StringVar(&flagPassword, "password", "", "Password to use instead of prompting")
+	loginCmd.Flags().BoolVar(&flagNoBrowser, "no-browser", false, "Do not open a browser, print the sign-in URL")
+	loginCmd.Flags().BoolVar(&flagNoListener, "no-listener", false, "Sign in from a browser on another machine, pasting the code back")
 	rootCmd.AddCommand(loginCmd)
 }

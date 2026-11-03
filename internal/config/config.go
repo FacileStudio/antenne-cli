@@ -11,10 +11,9 @@ import (
 	"strings"
 )
 
-// DefaultURL is where a locally running Antenne listens. There is deliberately no
-// facile.studio default: this is a self-hosted tool, and a CLI that silently
-// points at somebody else's instance is a surprise nobody wants.
-const DefaultURL = "http://localhost:9090"
+// DefaultURL is the hosted Antenne, used when no argument, environment variable or
+// stored value names an instance.
+const DefaultURL = "https://antenne.facile.studio"
 
 // Config is the whole stored state. It is small on purpose — everything else
 // lives in the instance.
