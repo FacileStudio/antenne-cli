@@ -41,7 +41,7 @@ facile install antenne
 ## Usage
 
 ```sh
-antenne login                       # sign in through the browser, no URL needed
+antenne login                       # approve the printed link, works over SSH
 antenne status                      # what the instance is watching and delivering
 antenne tail                        # follow the event stream until ctrl-c
 antenne events -n 50 --source imap  # search and filter the log

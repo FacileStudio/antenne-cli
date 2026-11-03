@@ -26,19 +26,23 @@ data, so `antenne targets --json | jq` and `antenne tail --json | while read -r 
 
 ## `antenne login [url]`
 
-Signs in through your browser and stores the instance URL and the session it returns. A session
-already open with another Facile tool completes the login with no prompt and no code to copy.
+Prints an approval link, opens it when this machine has a browser, and waits until you approve
+the sign-in in any browser. Nothing listens on a port and nothing is typed or pasted, so it works
+over SSH. It stores the instance URL and the session it returns.
 
 ```sh
-antenne login                                # https://antenne.facile.studio, through the browser
+antenne login                                # https://antenne.facile.studio, approval link
 antenne login antenne.example.org            # another instance
+antenne login --listener                     # the loopback flow: a local browser redirects here
 antenne login --no-listener                  # no browser here: paste the code from another machine
 antenne login --password "$ANTENNE_PASSWORD" # the instance password, for a script
 ```
 
 The URL is the argument, then `ANTENNE_URL`, then the stored one, then
-`https://antenne.facile.studio`. A bare hostname assumes `https://`. A machine with no browser
-shows the code-paste flow automatically. `--email` and `--password` sign in with the instance
+`https://antenne.facile.studio`. A bare hostname assumes `https://`. An instance that has not
+shipped device login falls back to the loopback flow with a notice, or to the code paste on a
+machine with no browser. An account that never signed in to the instance in a browser is refused:
+sign in there once, then run `login` again. `--email` and `--password` sign in with the instance
 password on an instance that has one: the prompt prefills the address the instance reports.
 
 A config file written by an older release holds a cookie-era token. It simply stops being
