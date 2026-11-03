@@ -10,6 +10,18 @@ record what shipped rather than what was written down at the time.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-11-03
+
+### Changed
+
+- `antenne login` signs in through the browser by default, with the porte loopback flow, so a
+  session open with another Facile tool completes it without a prompt.
+- `antenne login` with no URL uses `https://antenne.facile.studio` instead of localhost.
+
+### Added
+
+- `--no-browser` and `--no-listener` on `login`; a machine with no browser pastes the code.
+
 ## [0.3.0] — 2026-09-01
 
 ### Added
