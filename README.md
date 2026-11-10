@@ -73,6 +73,10 @@ token. `antenne login` writes it; nothing else does.
 | [Development](docs/development.md) | Local setup, the quality gate, releasing |
 | [Usage](docs/usage.md) | Every command and flag |
 
+## License
+
+antenne-cli is released under the [MIT License](LICENSE).
+
 ---
 
 Part of the [Facile Suite](https://facile.studio) — self-hosted tools for creative studios
