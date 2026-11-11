@@ -10,6 +10,12 @@ record what shipped rather than what was written down at the time.
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-11-11
+
+### Security
+
+- build: Go 1.26.11 (`go` directive, mise pin). It fixes GO-2026-6848 to GO-2026-6859 in the standard library and toolchain, which douane reported as unscored gaps and which failed the gate.
+
 ### Added
 
 - antenne-cli is released under the [MIT License](LICENSE).
@@ -123,7 +129,8 @@ record what shipped rather than what was written down at the time.
   stream returns. Anything else is reported verbatim, and a rejected session
   still aborts rather than hammering the login rate limiter.
 
-[Unreleased]: https://github.com/FacileStudio/antenne-cli/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/FacileStudio/antenne-cli/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/FacileStudio/antenne-cli/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/FacileStudio/antenne-cli/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/FacileStudio/antenne-cli/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/FacileStudio/antenne-cli/compare/v0.2.0...v0.3.0
