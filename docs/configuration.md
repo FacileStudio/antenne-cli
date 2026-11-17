@@ -27,7 +27,7 @@ the host again.
 | `ANTENNE_URL` | Instance URL, overriding the stored one |
 | `XDG_CONFIG_HOME` | Moves the config directory |
 | `NO_COLOR` | Disables colour, whatever the terminal reports |
-| `FACILE_BIN_DIR` | Where `install.sh` puts the binary. Default `~/.local/bin` |
+| `KIT_BIN_DIR` | Where `install.sh` puts the binary. Default `~/.local/bin` |
 
 ## Precedence
 
