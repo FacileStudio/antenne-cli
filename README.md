@@ -29,13 +29,14 @@ Configuration stays in the instance. This client never writes it.
 curl -fsSL https://raw.githubusercontent.com/FacileStudio/antenne-cli/main/install.sh | bash
 ```
 
-Installs to `~/.local/bin` via [facile](https://github.com/FacileStudio/facile), the suite
-installer. Pass `--bin-dir <dir>` to change that, `--source` to build from source.
+Installs to `~/.local/bin` via [kit](https://github.com/FacileStudio/kit), the Facile package manager.
+Pass `--bin-dir <dir>` to change that, `--source` to build from source, `--no-skill` to skip AI
+agent skill registration.
 
-Already have `facile`:
+Already have `kit`:
 
 ```sh
-facile install antenne
+kit add antenne
 ```
 
 ## Usage
